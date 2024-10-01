@@ -1,0 +1,6 @@
+@WebTracNghiemOnline_HostAddress = http://localhost:5011
+
+GET {{WebTracNghiemOnline_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
