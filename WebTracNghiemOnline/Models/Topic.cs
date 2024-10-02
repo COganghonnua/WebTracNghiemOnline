@@ -1,11 +1,15 @@
-﻿namespace WebTracNghiemOnline.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace WebTracNghiemOnline.Models
 {
     public class Topic
     {
         public int TopicId { get; set; }
-        public string TopicName { get; set; } // Tương đương với chủ đề trong phần "Luyện thi" web onthitracnghiem
 
-        // Quan hệ
-        public ICollection<Subject> Subjects { get; set; } // Các môn học trong chủ đề
+        [Required]
+        [StringLength(100)]
+        public string TopicName { get; set; } = string.Empty;
+
+        public ICollection<Subject>? Subjects { get; set; }
     }
 }
