@@ -14,6 +14,12 @@ namespace WebTracNghiemOnline.Mappings
             CreateMap<Topic, TopicDTO>();
             CreateMap<CreateTopicDto, Topic>();
             CreateMap<UpdateTopicDto, Topic>();
+            CreateMap<AnswerDTO, Answer>().ReverseMap();
+            CreateMap<Answer, CreateAnswerDto>().ReverseMap();
+            CreateMap<Answer, UpdateAnswerDto>().ReverseMap();
+            CreateMap<QuestionDTO, Question>().ReverseMap();
+            CreateMap<Question, CreateQuestionRequestDto>().ReverseMap();
+            CreateMap<Question, UpdateQuestionRequestDto>().ReverseMap();
         }
     }
 }
