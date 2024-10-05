@@ -10,6 +10,8 @@
 
         // Quan hệ
         public ICollection<Question> Questions { get; set; } // Các câu hỏi trong đề thi
-        public ICollection<ExamHistory> ExamHistories { get; set; } // Lịch sử thi của người dùng
+        public ICollection<ExamHistory>  ExamHistories { get; set; } // Lịch sử thi của người dùng
+
+        
     }
 }

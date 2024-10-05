@@ -8,4 +8,15 @@ namespace WebTracNghiemOnline.DTO
         public string SubjectName { get; set; } = string.Empty;
         public int TopicId { get; set; }
     }
+    public class CreateSubjectDto
+    {
+        public string SubjectName { get; set; } = string.Empty;
+        public int TopicId { get; set; }
+
+    }
+    public class UpdateSubjectDto
+    {
+        public string SubjectName { get; set; } = string.Empty;
+        public int TopicId { get; set; }
+    }
 }

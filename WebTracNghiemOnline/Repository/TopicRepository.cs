@@ -6,6 +6,7 @@ namespace WebTracNghiemOnline.Repository
 {
     public class TopicRepository : ITopicRepository
     {
+        
         private readonly ApplicationDbContext _context;
 
         public TopicRepository(ApplicationDbContext context)
@@ -40,7 +41,7 @@ namespace WebTracNghiemOnline.Repository
 
         public async Task DeleteAsync(int id)
         {
-            var topic = await _context.Topics.FindAsync(id);
+            var topic = await _context.Topics.FindAsync(id); 
             if (topic != null)
             {
                 _context.Topics.Remove(topic);

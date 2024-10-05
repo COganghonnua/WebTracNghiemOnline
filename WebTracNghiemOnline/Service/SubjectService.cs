@@ -37,10 +37,10 @@ namespace WebTracNghiemOnline.Service
 
         public async Task UpdateSubjectAsync(int id, UpdateSubjectDto updateSubjectDto)
         {
-            var existingSubject = await _subjectRepository.GetByIdAsync(id);
+            var existingSubject = await _subjectRepository.GetByIdAsync(id); // null 
             if (existingSubject == null)
             {
-                throw new KeyNotFoundException($"Subject with ID {id} not found.");
+                throw new KeyNotFoundException($"Subject with ID {id} not found."); 
             }
 
             _mapper.Map(updateSubjectDto, existingSubject);
