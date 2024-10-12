@@ -36,6 +36,24 @@ namespace WebTracNghiemOnline.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<AnswerDTO>> GetAnswer(int id)
         {
+
+            try
+            {
+                //gọi dữ liệu ở repository
+
+
+               /* --------------------*/
+
+
+
+                //logic xử lý dữ liệu.
+            }
+            catch
+            {
+
+            }
+
+
             try
             {
                 var answer = await answerService.GetAnswerByIdAsync(id);

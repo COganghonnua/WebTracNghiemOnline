@@ -6,6 +6,7 @@ namespace WebTracNghiemOnline.DTO
     {
         public int TopicId { get; set; }
         public string TopicName { get; set; } = string.Empty;
+        public ICollection<SubjectDTO> ListSubjectDTO { get; set; }
 
     }
     public class CreateTopicDto

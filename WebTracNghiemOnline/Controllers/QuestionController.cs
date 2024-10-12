@@ -63,6 +63,7 @@ namespace WebTracNghiemOnline.Controllers
         {
             try
             {
+          
                 var questionDomain = mapper.Map<Question>(createQuestionRequestDto);
 
                 var questionCreated = await questionRepository.CreateAsync(questionDomain);
