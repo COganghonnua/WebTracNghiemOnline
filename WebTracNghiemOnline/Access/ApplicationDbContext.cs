@@ -1,16 +1,17 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using WebTracNghiemOnline.Models;
 
 namespace WebTracNghiemOnline.Access
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : base(options)
         { }
-        public DbSet<User> Users { get; set; }
         public DbSet<Topic> Topics { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
@@ -22,6 +23,8 @@ namespace WebTracNghiemOnline.Access
         public DbSet<UserOnlineRoom> UserOnlineRooms { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<UserOnlineRoom>()
                 .HasOne(uor => uor.User)
                 .WithMany(u => u.UserOnlineRooms)
@@ -39,6 +42,15 @@ namespace WebTracNghiemOnline.Access
                 .WithMany(u => u.CreatedRooms)
                 .HasForeignKey(or => or.HostUserId)
                 .OnDelete(DeleteBehavior.Restrict); // Tránh xóa cascade
+
+
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<IdentityRole>().ToTable("Roles");
+            modelBuilder.Entity<IdentityUserRole<string>>().ToTable("UserRoles");
+            modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("UserClaims");
+            modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("UserLogins");
+            modelBuilder.Entity<IdentityUserToken<string>>().ToTable("UserTokens");
+            modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("RoleClaims");
         }
 
     }

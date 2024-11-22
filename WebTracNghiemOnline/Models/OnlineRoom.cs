@@ -11,7 +11,7 @@ namespace WebTracNghiemOnline.Models
 
         public DateTime CreatedAt { get; set; }
 
-        public int HostUserId { get; set; }
+        public string HostUserId { get; set; }
 
         [Required]
         public User HostUser { get; set; }

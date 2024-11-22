@@ -3,7 +3,7 @@
     public class ExamHistory
     {
         public int ExamHistoryId { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
         public User User { get; set; } // Người dùng thực hiện bài thi
         public int ExamId { get; set; }
         public Exam Exam { get; set; } // Đề thi mà người dùng tham gia

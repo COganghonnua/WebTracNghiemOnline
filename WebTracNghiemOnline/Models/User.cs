@@ -1,27 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebTracNghiemOnline.Models
 {
-    public class User
+    public class User : IdentityUser
     {
-        public int UserId { get; set; }
+        [Required(ErrorMessage = "FullName is required.")]
+        [StringLength(100, ErrorMessage = "FullName cannot exceed 100 characters.")]
+        public string FullName { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string Username { get; set; }
+        [DataType(DataType.Date)]
+        [Display(Name = "Date of Birth")]
+        public DateTime ? DateOfBirth { get; set; }
 
-        [Required]
-        public string PasswordHash { get; set; }
+        [StringLength(200, ErrorMessage = "Address cannot exceed 200 characters.")]
+        public string ? Address { get; set; }
 
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        [Phone(ErrorMessage = "Invalid phone number format.")]
+        public override string PhoneNumber { get; set; }
 
         [Range(0, double.MaxValue)]
-        public decimal Balance { get; set; }
-
-        [Required]
-        public string Role { get; set; }
+        public decimal ? Balance { get; set; } = 0;
 
         public ICollection<ExamHistory> ExamHistories { get; set; }
         public ICollection<OnlineRoom> CreatedRooms { get; set; }
