@@ -21,6 +21,7 @@ namespace WebTracNghiemOnline.Access
         public DbSet<Answer> Answers { get; set; }
         public DbSet<OnlineRoom> OnlineRooms{ get; set; }
         public DbSet<UserOnlineRoom> UserOnlineRooms { get; set; }
+        public DbSet<ExamQuestion> ExamQuestions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -43,6 +44,23 @@ namespace WebTracNghiemOnline.Access
                 .HasForeignKey(or => or.HostUserId)
                 .OnDelete(DeleteBehavior.Restrict); // Tránh xóa cascade
 
+            // Cấu hình khóa chính cho bảng trung gian
+            modelBuilder.Entity<ExamQuestion>()
+                .HasKey(eq => new { eq.ExamId, eq.QuestionId });
+
+            // Quan hệ với Exam
+            modelBuilder.Entity<ExamQuestion>()
+                .HasOne(eq => eq.Exam)
+                .WithMany(e => e.ExamQuestions)
+                .HasForeignKey(eq => eq.ExamId)
+                .OnDelete(DeleteBehavior.Cascade); // Chỉ áp dụng cascade cho Exam
+
+            // Quan hệ với Question
+            modelBuilder.Entity<ExamQuestion>()
+                .HasOne(eq => eq.Question)
+                .WithMany(q => q.ExamQuestions)
+                .HasForeignKey(eq => eq.QuestionId)
+                .OnDelete(DeleteBehavior.Restrict); // Bỏ cascade cho Question
 
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<IdentityRole>().ToTable("Roles");

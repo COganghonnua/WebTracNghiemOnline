@@ -33,11 +33,15 @@ namespace WebTracNghiemOnline.Repository
             return topic;
         }
 
-        public async Task UpdateAsync(Topic topic)
+        public async Task<Topic> UpdateAsync(Topic topic)
         {
             _context.Entry(topic).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            // Load lại dữ liệu từ database để đảm bảo dữ liệu mới nhất
+            return await _context.Topics
+                .FirstOrDefaultAsync(t => t.TopicId == topic.TopicId);
         }
+
 
         public async Task DeleteAsync(int id)
         {

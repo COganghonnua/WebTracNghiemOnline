@@ -6,68 +6,55 @@ namespace WebTracNghiemOnline.Repository
 {
     public class ExamRepository : IExamRepository
     {
-        private readonly ApplicationDbContext dbContext;
+        private readonly ApplicationDbContext _context;
 
-        public ExamRepository(ApplicationDbContext dbContext)
+        public ExamRepository(ApplicationDbContext context)
         {
-            this.dbContext = dbContext;
-        }
-        public async Task<Exam> CreateAsync(Exam exam)
-        {
-            await dbContext.Exams.AddAsync(exam);
-            await dbContext.SaveChangesAsync();
-            return exam;
-        }
-
-        public async Task<Exam?> DeleteAsync(int id)
-        {
-            var existingExam = await dbContext.Exams.FirstOrDefaultAsync(x => x.ExamId == id);
-
-            if (existingExam == null) 
-            {
-                return null;
-            }
-
-            dbContext.Exams.Remove(existingExam);
-            await dbContext.SaveChangesAsync();
-
-            return existingExam;
+            _context = context;
         }
 
         public async Task<IEnumerable<Exam>> GetAllAsync()
         {
-            return await dbContext.Exams
-                .Include(x => x.Subject)
+            return await _context.Exams
+                .Include(e => e.Subject) // Include để lấy thông tin Subject
                 .ToListAsync();
         }
 
         public async Task<Exam?> GetByIdAsync(int id)
         {
-            return await dbContext.Exams
-                .Include(x => x.Subject)
-                .FirstOrDefaultAsync(x => x.ExamId == id);
+            return await _context.Exams
+                .Include(e => e.Subject) // Include để lấy thông tin Subject
+                .FirstOrDefaultAsync(e => e.ExamId == id);
         }
 
-        public async Task<Exam?> UpdateAsync(int id, Exam exam)
+        public async Task<Exam> CreateAsync(Exam exam)
         {
-            var existingExam = await dbContext.Exams
-                .Include(x => x.Subject)
-                .Include (x => x.Questions)
-                .ThenInclude (x => x.Answers)
-                .FirstOrDefaultAsync(x => x.ExamId == id);
+            _context.Exams.Add(exam);
+            await _context.SaveChangesAsync();
+            return await _context.Exams
+        .Include(e => e.Subject)
+        .FirstOrDefaultAsync(e => e.ExamId == exam.ExamId);
+        }
 
-            if (existingExam == null) 
+        public async Task UpdateAsync(Exam exam)
+        {
+            _context.Exams.Update(exam);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var exam = await _context.Exams.FindAsync(id);
+            if (exam != null)
             {
-                return null;
+                _context.Exams.Remove(exam);
+                await _context.SaveChangesAsync();
             }
+        }
 
-            existingExam.ExamName = exam.ExamName;
-            existingExam.SubjectId = exam.SubjectId;
-            existingExam.Fee = exam.Fee;
-
-            await dbContext.SaveChangesAsync();
-
-            return existingExam;
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _context.Exams.AnyAsync(e => e.ExamId == id);
         }
     }
 }

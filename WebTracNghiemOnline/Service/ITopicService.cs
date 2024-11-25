@@ -8,7 +8,7 @@ namespace WebTracNghiemOnline.Service
         Task<IEnumerable<TopicDTO>> GetAllTopicsAsync();
         Task<TopicDTO?> GetTopicByIdAsync(int id);
         Task<TopicDTO> CreateTopicAsync(CreateTopicDto createTopicDto);
-        Task UpdateTopicAsync(int id, UpdateTopicDto updateTopicDto);
+        Task<TopicDTO> UpdateTopicAsync(int id, UpdateTopicDto updateTopicDto);
         Task DeleteTopicAsync(int id);
 
 

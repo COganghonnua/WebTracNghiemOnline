@@ -7,7 +7,7 @@ namespace WebTracNghiemOnline.Repository
         Task<IEnumerable<Topic>> GetAllAsync();
         Task<Topic?> GetByIdAsync(int id);
         Task<Topic> CreateAsync(Topic topic);
-        Task UpdateAsync(Topic topic);
+        Task<Topic> UpdateAsync(Topic topic);
         Task DeleteAsync(int id);
         Task<bool> ExistsAsync(int id);
     }

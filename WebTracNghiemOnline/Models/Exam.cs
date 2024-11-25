@@ -9,9 +9,8 @@
         public decimal Fee { get; set; } // Phí tham gia đề thi
 
         // Quan hệ
-        public ICollection<Question> Questions { get; set; } // Các câu hỏi trong đề thi
-        public ICollection<ExamHistory>  ExamHistories { get; set; } // Lịch sử thi của người dùng
-
+        public ICollection<ExamQuestion> ? ExamQuestions { get; set; } = new List<ExamQuestion>();
+        public ICollection<ExamHistory> ?  ExamHistories { get; set; } = new List<ExamHistory>();
         
     }
 }

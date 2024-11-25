@@ -4,127 +4,74 @@ using Microsoft.AspNetCore.Mvc;
 using WebTracNghiemOnline.DTO;
 using WebTracNghiemOnline.Models;
 using WebTracNghiemOnline.Repository;
+using WebTracNghiemOnline.Service;
 
 namespace WebTracNghiemOnline.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class ExamController : ControllerBase
     {
-        private readonly IExamRepository examRepository;
-        private readonly IMapper mapper;
-        private readonly ILogger<Exam> logger;
+        private readonly IExamService _examService;
 
-        public ExamController(IExamRepository examRepository, IMapper mapper, ILogger<Exam> logger)
+        public ExamController(IExamService examService)
         {
-            this.examRepository = examRepository;
-            this.mapper = mapper;
-            this.logger = logger;
+            _examService = examService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll() 
+        public async Task<ActionResult<IEnumerable<ExamDTO>>> GetExams()
         {
-            try
-            {
-                var exams = await examRepository.GetAllAsync();
-                return Ok(mapper.Map<IEnumerable<ExamDTO>>(exams));
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while fetching all question");
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
+            var exams = await _examService.GetAllExamsAsync();
+            return Ok(exams);
         }
 
-        [HttpGet]
-        [Route("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ExamDTO>> GetExam(int id)
         {
-            try
+            var exam = await _examService.GetExamByIdAsync(id);
+            if (exam == null)
             {
-                var exam = await examRepository.GetByIdAsync(id);
-                if (exam == null)
-                {
-                    return NotFound();
-                }
-                return Ok(mapper.Map<ExamDTO>(exam));
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while fetching exam with ID: {ExamId}", id);
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
+            return Ok(exam);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]CreateExamRequestDto createExamRequestDto)
+        public async Task<ActionResult<ExamDTO>> CreateExam(CreateExamDto createExamDto)
         {
-            try
-            {
-                var examDomain = mapper.Map<Exam>(createExamRequestDto);
-
-                var examCreated = await examRepository.CreateAsync(examDomain);
-
-                var examDto = mapper.Map<ExamDTO>(examCreated);
-
-                return CreatedAtAction(nameof(GetById), new { id = examDto.ExamId }, examDto);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while creating a new exam");
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
+            var createdExam = await _examService.CreateExamAsync(createExamDto);
+            return CreatedAtAction(nameof(GetExam), new { id = createdExam.ExamId }, createdExam);
         }
 
-        [HttpPut]
-        [Route("{id}")]
-        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateExamRequestDto updateExamRequestDto)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ExamDTO>> UpdateExam(int id, UpdateExamDto updateExamDto)
         {
             try
             {
-                var examDomain = mapper.Map<Exam>(updateExamRequestDto);
-                examDomain = await examRepository.UpdateAsync(id, examDomain);
-                if (examDomain == null)
-                {
-                    return NotFound();
-                }
-                var examDto = mapper.Map<ExamDTO>(examDomain);
-                return Ok(examDto);
+                var updatedExam = await _examService.UpdateExamAsync(id, updateExamDto);
+                return Ok(updatedExam);
             }
             catch (KeyNotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while updating exam with ID: {ExamId}", id);
-                return StatusCode(500, "An error occurred while processing your request.");
-            }
         }
 
-        [HttpDelete]
-        [Route("{id}")]
-        public async Task<IActionResult> Delete([FromRoute] int id)
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteExam(int id)
         {
             try
             {
-                var examDomain = await examRepository.DeleteAsync(id);
-                if (examDomain == null)
-                {
-                    return NotFound();
-                }
-                return Ok(mapper.Map<ExamDTO>(examDomain));
+                await _examService.DeleteExamAsync(id);
+                return NoContent();
             }
             catch (KeyNotFoundException ex)
             {
-                return NotFound($"{ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error occurred while deleting exam with ID: {ExamId}", id);
-                return StatusCode(500, "An error occurred while processing your request.");
+                return NotFound(ex.Message);
             }
         }
     }
+
 }

@@ -72,8 +72,9 @@ namespace WebTracNghiemOnline.Controllers
         {
             try
             {
-                await _topicService.UpdateTopicAsync(id, updateTopicDto);
-                return NoContent();
+                // Cập nhật và trả về topic đã cập nhật
+                var updatedTopic = await _topicService.UpdateTopicAsync(id, updateTopicDto);
+                return Ok(updatedTopic); // Trả về dữ liệu mới
             }
             catch (KeyNotFoundException)
             {
@@ -85,6 +86,7 @@ namespace WebTracNghiemOnline.Controllers
                 return StatusCode(500, "An error occurred while processing your request.");
             }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTopic(int id)

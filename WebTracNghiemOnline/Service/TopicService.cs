@@ -36,7 +36,7 @@ namespace WebTracNghiemOnline.Services
             return _mapper.Map<TopicDTO>(createdTopic);
         }
 
-        public async Task UpdateTopicAsync(int id, UpdateTopicDto updateTopicDto)
+        public async Task<TopicDTO> UpdateTopicAsync(int id, UpdateTopicDto updateTopicDto)
         {
             var existingTopic = await _topicRepository.GetByIdAsync(id);
             if (existingTopic == null)
@@ -44,9 +44,16 @@ namespace WebTracNghiemOnline.Services
                 throw new KeyNotFoundException($"Topic with ID {id} not found.");
             }
 
+            // Map dữ liệu từ DTO sang model
             _mapper.Map(updateTopicDto, existingTopic);
-            await _topicRepository.UpdateAsync(existingTopic);
+
+            // Cập nhật và lấy lại dữ liệu đã cập nhật
+            var updatedTopic = await _topicRepository.UpdateAsync(existingTopic);
+
+            // Map dữ liệu đã cập nhật sang DTO
+            return _mapper.Map<TopicDTO>(updatedTopic);
         }
+
 
         public async Task DeleteTopicAsync(int id)
         {
