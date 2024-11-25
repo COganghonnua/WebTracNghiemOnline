@@ -13,6 +13,8 @@ using WebTracNghiemOnline.Repository;
 using WebTracNghiemOnline.Service;
 using WebTracNghiemOnline.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Http.Features;
+using OfficeOpenXml;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -97,7 +99,14 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Configure EPPlus for reading Excel files
+ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
+// Configure FormOptions for large file uploads
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 50 * 1024 * 1024; // Allow files up to 50MB
+});
 //place add DI
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 builder.Services.AddScoped<ITopicService, TopicService>();
@@ -109,7 +118,9 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IQuestionService, QuestionService>();
 builder.Services.AddScoped<IExamRepository, ExamRepository>();
+builder.Services.AddScoped<IExamService, ExamService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
