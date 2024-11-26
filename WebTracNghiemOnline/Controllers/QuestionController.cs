@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 using WebTracNghiemOnline.DTO;
 using WebTracNghiemOnline.Models;
 using WebTracNghiemOnline.Repository;
@@ -72,28 +73,52 @@ namespace WebTracNghiemOnline.Controllers
                 return NotFound(ex.Message);
             }
         }
+        /* [HttpPost("import")]
+         public async Task<IActionResult> ImportQuestions(IFormFile file, int subjectId)
+         {
+             Console.WriteLine($"Received file: {file?.FileName}, SubjectId: {subjectId}");
+
+             if (file == null || file.Length == 0)
+             {
+                 Console.WriteLine("File is missing or empty.");
+                 return BadRequest("File is required.");
+             }
+
+             if (Path.GetExtension(file.FileName).ToLower() != ".xlsx")
+             {
+                 Console.WriteLine("Invalid file extension.");
+                 return BadRequest("Only .xlsx files are supported.");
+             }
+
+             var result = await _questionService.ImportQuestionsAsync(file, subjectId);
+
+             if (result.Errors.Any())
+             {
+                 Console.WriteLine("Errors during import:", JsonSerializer.Serialize(result.Errors));
+                 return BadRequest(result); // Trả về danh sách lỗi nếu có
+             }
+
+             Console.WriteLine("Import successful:", JsonSerializer.Serialize(result.Success));
+             return Ok(result);
+         }*/
         [HttpPost("import")]
-        public async Task<IActionResult> ImportQuestions(IFormFile file, int subjectId)
+        public async Task<IActionResult> ImportQuestions([FromBody] List<CreateQuestionDto> questions)
         {
-            if (file == null || file.Length == 0)
+            if (questions == null || !questions.Any())
             {
-                return BadRequest("File is required.");
+                return BadRequest("No questions provided.");
             }
 
-            if (Path.GetExtension(file.FileName).ToLower() != ".xlsx")
-            {
-                return BadRequest("Only .xlsx files are supported.");
-            }
-
-            var result = await _questionService.ImportQuestionsAsync(file, subjectId);
+            var result = await _questionService.ImportQuestionsAsync(questions);
 
             if (result.Errors.Any())
             {
-                return BadRequest(result); // Trả về danh sách lỗi nếu có
+                return BadRequest(result);
             }
 
             return Ok(result);
         }
+
 
     }
 }

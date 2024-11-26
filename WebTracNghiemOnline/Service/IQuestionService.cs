@@ -9,6 +9,7 @@ namespace WebTracNghiemOnline.Service
         Task<QuestionDTO> CreateQuestionAsync(CreateQuestionDto createQuestionDto);
         Task UpdateQuestionAsync(int id, UpdateQuestionDto updateQuestionDto);
         Task DeleteQuestionAsync(int id);
-        Task<ImportResultDto> ImportQuestionsAsync(IFormFile file, int subjectId);
+        /* Task<ImportResultDto> ImportQuestionsAsync(IFormFile file, int subjectId);*/
+        Task<ImportResultDto> ImportQuestionsAsync(List<CreateQuestionDto> questions);
     }
 }
