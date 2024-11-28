@@ -25,4 +25,12 @@ namespace WebTracNghiemOnline.DTO
         public decimal Fee { get; set; }
         public int SubjectId { get; set; }
     }
+    public class ExamWithQuestionsDto
+    {
+        public int ExamId { get; set; }
+        public string ExamName { get; set; }
+        public decimal Fee { get; set; }
+        public string SubjectName { get; set; } // Tên Subject
+        public List<QuestionDTO> Questions { get; set; } = new();
+    }
 }

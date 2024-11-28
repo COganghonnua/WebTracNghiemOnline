@@ -73,34 +73,34 @@ namespace WebTracNghiemOnline.Controllers
                 return NotFound(ex.Message);
             }
         }
-        /* [HttpPost("import")]
-         public async Task<IActionResult> ImportQuestions(IFormFile file, int subjectId)
-         {
-             Console.WriteLine($"Received file: {file?.FileName}, SubjectId: {subjectId}");
+        [HttpPost("importbackend")]
+        public async Task<IActionResult> ImportQuestions1(IFormFile file, int subjectId)
+        {
+            Console.WriteLine($"Received file: {file?.FileName}, SubjectId: {subjectId}");
 
-             if (file == null || file.Length == 0)
-             {
-                 Console.WriteLine("File is missing or empty.");
-                 return BadRequest("File is required.");
-             }
+            if (file == null || file.Length == 0)
+            {
+                Console.WriteLine("File is missing or empty.");
+                return BadRequest("File is required.");
+            }
 
-             if (Path.GetExtension(file.FileName).ToLower() != ".xlsx")
-             {
-                 Console.WriteLine("Invalid file extension.");
-                 return BadRequest("Only .xlsx files are supported.");
-             }
+            if (Path.GetExtension(file.FileName).ToLower() != ".xlsx")
+            {
+                Console.WriteLine("Invalid file extension.");
+                return BadRequest("Only .xlsx files are supported.");
+            }
 
-             var result = await _questionService.ImportQuestionsAsync(file, subjectId);
+            var result = await _questionService.ImportQuestionsAsync1(file, subjectId);
 
-             if (result.Errors.Any())
-             {
-                 Console.WriteLine("Errors during import:", JsonSerializer.Serialize(result.Errors));
-                 return BadRequest(result); // Trả về danh sách lỗi nếu có
-             }
+            if (result.Errors.Any())
+            {
+                Console.WriteLine("Errors during import:", JsonSerializer.Serialize(result.Errors));
+                return BadRequest(result); // Trả về danh sách lỗi nếu có
+            }
 
-             Console.WriteLine("Import successful:", JsonSerializer.Serialize(result.Success));
-             return Ok(result);
-         }*/
+            Console.WriteLine("Import successful:", JsonSerializer.Serialize(result.Success));
+            return Ok(result);
+        }
         [HttpPost("import")]
         public async Task<IActionResult> ImportQuestions([FromBody] List<CreateQuestionDto> questions)
         {

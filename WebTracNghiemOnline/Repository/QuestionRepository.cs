@@ -55,6 +55,13 @@ namespace WebTracNghiemOnline.Repository
             public async Task<bool> ExistsAsync(int id)
             {
                 return await _context.Questions.AnyAsync(q => q.QuestionId == id);
-            }
         }
+        public async Task<List<Question>> GetQuestionsByDifficultyAsync(int subjectId, DifficultyLevel difficulty)
+        {
+            return await _context.Questions
+                .Where(q => q.SubjectId == subjectId && q.Difficulty == difficulty)
+                .ToListAsync();
+        }
+        // 3 biến lưu 3 list Dễ Khó Trung Bình
+    }
 }
