@@ -9,6 +9,8 @@ namespace WebTracNghiemOnline.Repository
         Task<Answer> CreateAsync(Answer answer);
         Task UpdateAsync(Answer answer);
         Task DeleteAsync(int id);
-        Task<bool> ExistsAsync(int id); 
+        Task<bool> ExistsAsync(int id);
+        Task<List<int>> GetCorrectAnswersByQuestionIdAsync(int questionId);
+
     }
 }

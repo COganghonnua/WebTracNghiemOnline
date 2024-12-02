@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Text.Json;
 using WebTracNghiemOnline.DTO;
 using WebTracNghiemOnline.Service;
 
@@ -51,7 +54,9 @@ namespace WebTracNghiemOnline.Controllers
                 {
                     ExamName = request.ExamName,
                     Fee = request.Fee,
-                    SubjectId = request.SubjectId
+                    SubjectId = request.SubjectId,
+                    Duration = request.Duration,
+                    
                 },
                 request.NumberOfQuestions);
 
@@ -62,8 +67,66 @@ namespace WebTracNghiemOnline.Controllers
 
             return Ok(result.Data);
         }
+        [HttpGet("{id}/questions")]
+        public async Task<IActionResult> GetExamWithQuestions(int id)
+        {
+            var examWithQuestions = await _examService.GetExamWithQuestionsAsync(id);
+            if (examWithQuestions == null)
+            {
+                return NotFound(new { Status = 404, Message = "Exam not found or no questions available", Data = (object)null });
+            }
+
+            return Ok(new { Status = 200, Message = "Exam questions retrieved successfully", Data = examWithQuestions });
+        }
+        [HttpPost("{id}/submit")]
+        [Authorize]
+        public async Task<IActionResult> SubmitExam(int id, [FromBody] SubmitExamDto submitExamDto)
+        {
+            Console.WriteLine($"Exam ID: {id}");
+            Console.WriteLine($"User Answers: {JsonSerializer.Serialize(submitExamDto)}");
+
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; // Lấy ID người dùng từ JWT
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated." });
+                }
+
+                var result = await _examService.SubmitExamAsync(id, userId, submitExamDto);
+                if (!result.Success)
+                {
+                    return BadRequest(new { message = result.Message });
+                }
+
+                return Ok(new
+                {
+                    message = "Exam submitted successfully.",
+                    score = result.Data.Score,
+                    totalQuestions = result.Data.TotalQuestions,
+                    correctAnswers = result.Data.CorrectAnswers
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred.", details = ex.Message });
+            }
+        }
+        [HttpPost("check")]
+        public async Task<IActionResult> CheckExamAnswers([FromBody] ExamSubmissionDto examSubmission)
+        {
+            var result = await _examService.CheckExamAnswersAsync(examSubmission);
+            if (!result.Success)
+            {
+                return BadRequest(result.Message);
+            }
+
+            return Ok(new { score = result.Score });
+        }
+
+
     }
 
-   
+
 
 }

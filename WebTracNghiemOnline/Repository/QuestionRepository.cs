@@ -63,5 +63,12 @@ namespace WebTracNghiemOnline.Repository
                 .ToListAsync();
         }
         // 3 biến lưu 3 list Dễ Khó Trung Bình
+        public async Task<List<Question>> GetQuestionsByExamIdAsync(int examId)
+        {
+            return await _context.Questions
+            .Where(q => q.ExamQuestions.Any(eq => eq.ExamId == examId))
+            .ToListAsync();
+        }
+
     }
 }

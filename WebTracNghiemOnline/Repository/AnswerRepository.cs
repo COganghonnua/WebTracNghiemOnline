@@ -51,5 +51,13 @@ namespace WebTracNghiemOnline.Repository
             dbContext.Entry(answer).State = EntityState.Modified;
             await dbContext.SaveChangesAsync();
         }
+        public async Task<List<int>> GetCorrectAnswersByQuestionIdAsync(int questionId)
+        {
+            return await dbContext.Answers
+            .Where(a => a.QuestionId == questionId && a.IsCorrect == true)
+            .Select(a => a.AnswerId)
+            .ToListAsync();
+        }
+
     }
 }

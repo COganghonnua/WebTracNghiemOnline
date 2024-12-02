@@ -16,18 +16,23 @@ namespace WebTracNghiemOnline.Mappings
             CreateMap<CreateTopicDto, Topic>();
             CreateMap<UpdateTopicDto, Topic>();
             CreateMap<Question, QuestionDTO>()
-            .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName));
-            CreateMap<CreateQuestionDto, Question>();
-            CreateMap<UpdateQuestionDto, Question>();
+            .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName))
+            .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers));
 
-            CreateMap<Answer, AnswerDTO>();
+            CreateMap<CreateQuestionDto, Question>()
+           .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers));
+            CreateMap<UpdateQuestionDto, Question>().ReverseMap();
             CreateMap<CreateAnswerDto, Answer>();
+            CreateMap<Answer, AnswerDTO>();
+            CreateMap<CreateExamDto, Exam>()
+     .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration));
+
             CreateMap<UpdateAnswerDto, Answer>();
             CreateMap<Topic, TopicDTO>()
             .ForMember(dest => dest.ListSubjectDTO, opt => opt.MapFrom(src => src.Subjects));
             CreateMap<Exam, ExamDTO>()
-            .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName)).ReverseMap();
-
+            .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName)).ReverseMap()
+            .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration)).ReverseMap();
             CreateMap<CreateExamDto, Exam>();
             CreateMap<UpdateExamDto, Exam>();
             CreateMap<RegisterUserDto, User>()
@@ -35,11 +40,16 @@ namespace WebTracNghiemOnline.Mappings
                .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName));
             CreateMap<Exam, ExamWithQuestionsDto>()
-            .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.ExamQuestions.Select(eq => eq.Question)))
-            .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName));
-
+     .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.ExamQuestions.Select(eq => eq.Question)))
+     .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName))
+     .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration)); // Đảm bảo tồn tại
             CreateMap<Question, QuestionDTO>()
-                .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName));
+                .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName))
+                 .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.Answers));
+            CreateMap<Exam, ExamWithQuestionsDto>()
+    .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.Subject.SubjectName))
+    .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.ExamQuestions.Select(eq => eq.Question)));
+
         }
     }
 }

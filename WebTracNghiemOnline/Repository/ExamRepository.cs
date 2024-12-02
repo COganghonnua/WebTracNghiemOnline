@@ -11,6 +11,8 @@ namespace WebTracNghiemOnline.Repository
         Task<Exam> GetExamByIdAsync(int id);
         Task DeleteExamAsync(Exam exam);
         Task UpdateExamAsync(Exam exam);
+        Task<Exam?> GetExamWithQuestionsAsync(int id);
+        Task SaveExamHistoryAsync(ExamHistory examHistory);
 
     }
 
@@ -49,6 +51,21 @@ namespace WebTracNghiemOnline.Repository
             _context.Exams.Update(exam);
             await _context.SaveChangesAsync();
         }
+        public async Task<Exam?> GetExamWithQuestionsAsync(int id)
+        {
+            return await _context.Exams
+                .Include(e => e.ExamQuestions) // Bao gồm bảng trung gian ExamQuestions
+                    .ThenInclude(eq => eq.Question) // Bao gồm bảng Question
+                        .ThenInclude(q => q.Answers) // Bao gồm bảng Answer
+                .FirstOrDefaultAsync(e => e.ExamId == id);
+        }
+        public async Task SaveExamHistoryAsync(ExamHistory examHistory)
+        {
+            _context.ExamHistories.Add(examHistory);
+            await _context.SaveChangesAsync();
+        }
+
+
 
     }
 
