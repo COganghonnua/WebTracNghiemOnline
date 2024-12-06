@@ -17,6 +17,7 @@ namespace WebTracNghiemOnline.Services
         Task<string> RegisterAsync(RegisterUserDto model);
         Task<string> LoginAsync(LoginUserDto model);
         Task<User> GetUserByIdAsync(string userId);
+        Task<User> ValidateTokenAsync(string token);
     }
     public class AuthService : IAuthService
     {
@@ -46,6 +47,40 @@ namespace WebTracNghiemOnline.Services
             await _userRepository.AddToRoleAsync(user, "User");
             return "User registered successfully.";
         }
+        public async Task<User> ValidateTokenAsync(string token)
+        {
+            Console.WriteLine("Token nhận được: " + token);
+            var handler = new JwtSecurityTokenHandler();
+            try
+            {
+                var jwtToken = handler.ReadJwtToken(token);
+                Console.WriteLine("Issuer: " + jwtToken.Issuer);
+                Console.WriteLine("Audience: " + string.Join(", ", jwtToken.Audiences));
+
+                if (jwtToken.Issuer != _jwtConfig.Issuer || !jwtToken.Audiences.Contains(_jwtConfig.Audience))
+                    throw new UnauthorizedAccessException("Token không hợp lệ.");
+
+                foreach (var claim in jwtToken.Claims)
+                {
+                    Console.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+                }
+
+                var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                    throw new UnauthorizedAccessException("Token không hợp lệ.");
+
+                var user = await _userRepository.GetByIdAsync(userId);
+                return user ?? throw new UnauthorizedAccessException("Không tìm thấy người dùng.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Lỗi ValidateTokenAsync: " + ex.Message);
+                throw;
+            }
+        }
+
+
 
         public async Task<string> LoginAsync(LoginUserDto model)
         {
@@ -63,7 +98,7 @@ namespace WebTracNghiemOnline.Services
         {
             var claims = new List<Claim>
     {
-        new Claim(ClaimTypes.NameIdentifier, user.Id),
+        new Claim(ClaimTypes.NameIdentifier, user.Id), // Đồng bộ với ValidateTokenAsync
         new Claim(ClaimTypes.Name, user.UserName),
         new Claim(ClaimTypes.Email, user.Email)
     };
@@ -83,6 +118,6 @@ namespace WebTracNghiemOnline.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
         }
+    }
 
     }
-}

@@ -60,5 +60,21 @@ namespace WebTracNghiemOnline.Repository
         {
             return await _userManager.FindByIdAsync(userId);
         }
+        public async Task<bool> UpdateAsync(User user)
+        {
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                Console.WriteLine("Failed to update user:");
+                foreach (var error in result.Errors)
+                {
+                    Console.WriteLine($"Code: {error.Code}, Description: {error.Description}");
+                }
+            }
+
+            return result.Succeeded;
+        }
+
     }
 }

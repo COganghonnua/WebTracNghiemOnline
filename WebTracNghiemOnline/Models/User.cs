@@ -25,6 +25,7 @@ namespace WebTracNghiemOnline.Models
         public ICollection<ExamHistory> ExamHistories { get; set; }
         public ICollection<OnlineRoom> CreatedRooms { get; set; }
         public ICollection<UserOnlineRoom> UserOnlineRooms { get; set; }
+        public ICollection<Transaction> transactions { get; set; }
     }
 
 }

@@ -12,5 +12,7 @@ namespace WebTracNghiemOnline.Repository
         Task<bool> CheckPasswordAsync(User user, string password);
         Task<IList<string>> GetRolesAsync(User user);
         Task<User> GetByIdAsync(string userId);
+        Task<bool> UpdateAsync(User user);
+       /* void UpdateAsync(Task<User> user);*/
     }
 }

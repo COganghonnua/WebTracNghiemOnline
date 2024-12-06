@@ -15,12 +15,19 @@ using WebTracNghiemOnline.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.Features;
 using OfficeOpenXml;
+using WebTracNghiemOnline.MoMo.Config;
+using WebTracNghiemOnline.DTO;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNameCaseInsensitive = true; // Không phân biệt hoa/thường
+    options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString; // Hỗ trợ đọc số từ chuỗi
+});
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -35,6 +42,9 @@ builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfi
 // Lấy khóa bí mật từ cấu hình
 var jwtConfig = builder.Configuration.GetSection("JwtConfig").Get<JwtConfig>();
 var key = Encoding.UTF8.GetBytes(jwtConfig.SecretKey);
+
+builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("Momo"));
+
 
 // Cấu hình Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -123,6 +133,10 @@ builder.Services.AddScoped<IExamRepository, ExamRepository>();
 builder.Services.AddScoped<IExamService, ExamService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddHttpClient<IMomoService, MomoService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IVNPAYService, VNPAYService>();
 
 
 builder.Services.AddEndpointsApiExplorer();
