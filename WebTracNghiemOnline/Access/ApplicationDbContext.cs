@@ -22,27 +22,19 @@ namespace WebTracNghiemOnline.Access
         public DbSet<OnlineRoom> OnlineRooms{ get; set; }
         public DbSet<UserOnlineRoom> UserOnlineRooms { get; set; }
         public DbSet<ExamQuestion> ExamQuestions { get; set; }
+        public DbSet<Exercise> Exercises { get; set; }
+        public DbSet<ExerciseAnswer> ExerciseAnswers { get; set; }
+        public DbSet<ExerciseQuestion> ExerciseQuestions { get; set; }
+        public DbSet<ExerciseHistory> ExerciseHistories { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<UserOnlineRoom>()
-                .HasOne(uor => uor.User)
-                .WithMany(u => u.UserOnlineRooms)
-                .HasForeignKey(uor => uor.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // Tránh xóa cascade
+           
 
-            modelBuilder.Entity<UserOnlineRoom>()
-                .HasOne(uor => uor.OnlineRoom)
-                .WithMany(or => or.UserOnlineRooms)
-                .HasForeignKey(uor => uor.OnlineRoomId)
-                .OnDelete(DeleteBehavior.Restrict); // Tránh xóa cascade
 
-            modelBuilder.Entity<OnlineRoom>()
-                .HasOne(or => or.HostUser)
-                .WithMany(u => u.CreatedRooms)
-                .HasForeignKey(or => or.HostUserId)
-                .OnDelete(DeleteBehavior.Restrict); // Tránh xóa cascade
 
             // Cấu hình khóa chính cho bảng trung gian
             modelBuilder.Entity<ExamQuestion>()
@@ -61,6 +53,25 @@ namespace WebTracNghiemOnline.Access
                 .WithMany(q => q.ExamQuestions)
                 .HasForeignKey(eq => eq.QuestionId)
                 .OnDelete(DeleteBehavior.Restrict); // Bỏ cascade cho Question
+            modelBuilder.Entity<ExerciseHistory>()
+    .HasOne(eh => eh.Exercise)
+    .WithMany(e => e.ExerciseHistories)
+    .HasForeignKey(eh => eh.ExerciseId)
+    .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<OnlineRoom>()
+    .HasIndex(or => or.RoomCode)
+    .IsUnique();
+            modelBuilder.Entity<UserOnlineRoom>()
+                .HasIndex(uor => new { uor.UserId, uor.OnlineRoomId })
+                .IsUnique();
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.UserOnlineRooms)
+                .WithOne(uor => uor.User)
+                .HasForeignKey(uor => uor.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
+
 
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<IdentityRole>().ToTable("Roles");

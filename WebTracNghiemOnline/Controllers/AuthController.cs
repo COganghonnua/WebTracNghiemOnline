@@ -125,8 +125,15 @@ namespace WebTracNghiemOnline.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("jwt");
+            Response.Cookies.Append("jwt", "", new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.None,
+                Secure = true,
+                Expires = DateTime.UtcNow.AddDays(-1) // Xóa cookie
+            });
             return Ok(new { message = "Logged out successfully." });
         }
+
     }
 }

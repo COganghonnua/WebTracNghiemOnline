@@ -23,9 +23,9 @@ namespace WebTracNghiemOnline.Models
         public decimal ? Balance { get; set; } = 0;
 
         public ICollection<ExamHistory> ExamHistories { get; set; }
-        public ICollection<OnlineRoom> CreatedRooms { get; set; }
         public ICollection<UserOnlineRoom> UserOnlineRooms { get; set; }
         public ICollection<Transaction> transactions { get; set; }
+        public ICollection<ExerciseHistory>? ExerciseHistories { get; set; }
     }
 
 }

@@ -137,7 +137,8 @@ builder.Services.AddHttpClient<IMomoService, MomoService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IVNPAYService, VNPAYService>();
-
+builder.Services.AddScoped<IOnlineRoomRepository, OnlineRoomRepository>();
+builder.Services.AddScoped<IOnlineRoomService, OnlineRoomService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
