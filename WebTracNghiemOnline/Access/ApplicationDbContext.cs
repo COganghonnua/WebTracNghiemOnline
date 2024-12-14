@@ -26,14 +26,19 @@ namespace WebTracNghiemOnline.Access
         public DbSet<ExerciseAnswer> ExerciseAnswers { get; set; }
         public DbSet<ExerciseQuestion> ExerciseQuestions { get; set; }
         public DbSet<ExerciseHistory> ExerciseHistories { get; set; }
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-           
 
+            modelBuilder.Entity<Comment>().HasQueryFilter(c => !c.IsDeleted);
+
+            // Nếu muốn áp dụng cho Post, thêm như sau:
+            modelBuilder.Entity<Post>().HasQueryFilter(p => !p.IsDeleted);
 
 
             // Cấu hình khóa chính cho bảng trung gian
@@ -71,7 +76,17 @@ namespace WebTracNghiemOnline.Access
                 .OnDelete(DeleteBehavior.Cascade);
 
 
+             modelBuilder.Entity<Comment>()
+            .HasOne(c => c.User)
+            .WithMany(u => u.Comments)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Restrict); // Không dùng Cascade ở đây
 
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.Post)
+                .WithMany(p => p.Comments)
+                .HasForeignKey(c => c.PostId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade chỉ với Post
 
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<IdentityRole>().ToTable("Roles");

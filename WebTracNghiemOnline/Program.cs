@@ -47,7 +47,7 @@ builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("Mo
 
 
 // Cấu hình Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+/*builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -59,33 +59,64 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = jwtConfig.Issuer,
             ValidAudience = jwtConfig.Audience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.SecretKey))
-        };
+        };*/
 
-        // Đọc token từ header hoặc cookie
-        options.Events = new JwtBearerEvents
+// Đọc token từ header hoặc cookie
+/*options.Events = new JwtBearerEvents
+{
+    OnMessageReceived = context =>
+    {
+        // Lấy token từ header Authorization
+       *//* if (context.Request.Headers.ContainsKey("Authorization"))
         {
-            OnMessageReceived = context =>
+            var authorizationHeader = context.Request.Headers["Authorization"].ToString();
+            if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             {
-                // Lấy token từ header Authorization
-                if (context.Request.Headers.ContainsKey("Authorization"))
-                {
-                    var authorizationHeader = context.Request.Headers["Authorization"].ToString();
-                    if (authorizationHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                    {
-                        context.Token = authorizationHeader.Substring("Bearer ".Length).Trim();
-                    }
-                }
-
-                // Nếu không có token trong header, lấy từ cookie
-                if (string.IsNullOrEmpty(context.Token))
-                {
-                    context.Token = context.Request.Cookies["jwt"];
-                }
-
-                return Task.CompletedTask;
+                context.Token = authorizationHeader.Substring("Bearer ".Length).Trim();
             }
-        };
-    });
+        }*//*
+       Console.WriteLine($"Token received: {context.Token}");
+        // Fallback: Lấy token từ cookie nếu không có trong header
+        if (string.IsNullOrEmpty(context.Token) && context.Request.Cookies.ContainsKey("jwt"))
+        {
+            context.Token = context.Request.Cookies["jwt"];
+        }
+        Console.WriteLine($"Token received: {context.Token}");
+        return Task.CompletedTask;
+    }
+};*/
+
+/*    });
+*/
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtConfig.Issuer,
+        ValidAudience = jwtConfig.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.SecretKey))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            context.Token = context.Request.Cookies["jwt"];
+            Console.WriteLine("ContextToken" + context.Token);
+            return Task.CompletedTask;
+        }
+    };
+});
 
 
 builder.Services.Configure<IdentityOptions>(options =>
@@ -153,6 +184,8 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors("AllowSpecificOrigin");
 app.UseHttpsRedirection();
+
+app.UseRouting();
 
 app.UseAuthentication(); // Thêm dòng này
 app.UseAuthorization();

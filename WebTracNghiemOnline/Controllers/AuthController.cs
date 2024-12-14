@@ -16,6 +16,7 @@ namespace WebTracNghiemOnline.Controllers
         {
             _authService = authService;
         }
+        
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterUserDto model)

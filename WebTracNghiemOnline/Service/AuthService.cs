@@ -100,7 +100,8 @@ namespace WebTracNghiemOnline.Services
     {
         new Claim(ClaimTypes.NameIdentifier, user.Id), // Đồng bộ với ValidateTokenAsync
         new Claim(ClaimTypes.Name, user.UserName),
-        new Claim(ClaimTypes.Email, user.Email)
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Role,"User")
     };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.SecretKey));

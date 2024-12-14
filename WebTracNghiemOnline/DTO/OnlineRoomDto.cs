@@ -4,6 +4,7 @@ namespace WebTracNghiemOnline.DTO
 {
     public class OnlineRoomDto
     {
+        public int OnlineRoomId { get; set; }
         public string RoomCode { get; set; }
         public DateTime CreatedAt { get; set; }
         public string RoomName { get; set; }

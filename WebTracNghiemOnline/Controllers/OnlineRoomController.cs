@@ -112,6 +112,48 @@ namespace WebTracNghiemOnline.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
+        [HttpPost("{roomId}/exercises")]
+        public async Task<IActionResult> CreateExercise(int roomId, [FromBody] CreateExerciseDto request)
+        {
+            try
+            {
+                var token = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token not found. Please log in." });
+
+                var user = await _authService.ValidateTokenAsync(token);
+
+                var exercise = await _onlineRoomService.CreateExerciseAsync(user.Id, roomId, request);
+                var exerciseDto = _mapper.Map<ExerciseDto>(exercise);
+
+                return Ok(new { message = "Exercise created successfully", exercise = exerciseDto });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+        [HttpGet("userRooms")]
+        public async Task<IActionResult> GetUserRooms()
+        {
+            try
+            {
+                var token = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token not found. Please log in." });
+
+                var user = await _authService.ValidateTokenAsync(token);
+                var userRooms = await _onlineRoomService.GetUserRoomsAsync(user.Id);
+
+                var userRoomDtos = userRooms.Select(room => _mapper.Map<OnlineRoomDto>(room)).ToList();
+                return Ok(userRoomDtos); // Trả về danh sách phòng dưới dạng DTO
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
 
     }
 
@@ -119,5 +161,6 @@ namespace WebTracNghiemOnline.Controllers
     {
         public string RoomCode { get; set; }
     }
+
 
 }

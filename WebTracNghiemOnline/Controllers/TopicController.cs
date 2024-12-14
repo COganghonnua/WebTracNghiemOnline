@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebTracNghiemOnline.DTO;
 using WebTracNghiemOnline.Models;
 using WebTracNghiemOnline.Service;
@@ -19,8 +20,10 @@ namespace WebTracNghiemOnline.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles ="User")]
         public async Task<ActionResult<IEnumerable<TopicDTO>>> GetTopics()
         {
+            Console.WriteLine("Da vao day roi");
             try
             {
                 var topics = await _topicService.GetAllTopicsAsync();

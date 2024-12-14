@@ -1,4 +1,6 @@
-﻿using WebTracNghiemOnline.Exceptions;
+﻿using AutoMapper;
+using WebTracNghiemOnline.DTO;
+using WebTracNghiemOnline.Exceptions;
 using WebTracNghiemOnline.Models;
 using WebTracNghiemOnline.Repository;
 
@@ -11,15 +13,21 @@ namespace WebTracNghiemOnline.Service
         Task<UserOnlineRoom> JoinRoomAsync(string userId, string roomCode);
         Task<bool> LeaveRoomAsync(string userId, string roomCode);
         Task<OnlineRoom?> GetRoomByCodeAsync(string roomCode);
+        Task<Exercise> CreateExerciseAsync(string userId, int roomId, CreateExerciseDto request);
+        Task<List<OnlineRoom>> GetUserRoomsAsync(string userId);
+
     }
 
     public class OnlineRoomService : IOnlineRoomService
     {
         private readonly IOnlineRoomRepository _repository;
+        private readonly IMapper _mapper;
 
-        public OnlineRoomService(IOnlineRoomRepository repository)
+
+        public OnlineRoomService(IOnlineRoomRepository repository, IMapper mapper)
         {
             _repository = repository;
+            _mapper = mapper;
         }
 
         public async Task<OnlineRoom> CreateRoomAsync(string hostUserId, string roomName)
@@ -52,6 +60,10 @@ namespace WebTracNghiemOnline.Service
             await _repository.AddUserToRoomAsync(ownerEntry);
 
             return createdRoom;
+        }
+        public async Task<List<OnlineRoom>> GetUserRoomsAsync(string userId)
+        {
+            return await _repository.GetUserRoomsAsync(userId);
         }
 
 
@@ -96,6 +108,29 @@ namespace WebTracNghiemOnline.Service
         public async Task<OnlineRoom?> GetRoomByCodeAsync(string roomCode)
         {
             return await _repository.GetRoomByCodeAsync(roomCode);
+        }
+
+
+        public async Task<Exercise> CreateExerciseAsync(string userId, int roomId, CreateExerciseDto request)
+        {
+            // Kiểm tra người dùng có trong phòng và có vai trò là Owner không
+            var userRoom = await _repository.GetUserInRoomAsync(userId, roomId);
+            if (userRoom == null || userRoom.Role != UserRole.Owner)
+            {
+                throw new UnauthorizedAccessException("Only the owner can create exercises.");
+            }
+
+            // Kiểm tra thời gian bắt đầu và kết thúc
+            if (request.EndTime <= request.StartTime)
+            {
+                throw new ArgumentException("The end time must be greater than the start time of the exercise.");
+            }
+
+            // Ánh xạ DTO thành Entity
+            var exercise = _mapper.Map<Exercise>(request);
+            exercise.OnlineRoomId = roomId;
+
+            return await _repository.AddExerciseAsync(exercise);
         }
 
     }

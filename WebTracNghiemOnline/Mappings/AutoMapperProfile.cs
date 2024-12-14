@@ -56,6 +56,24 @@ namespace WebTracNghiemOnline.Mappings
     .ForMember(dest => dest.RoomName, opt => opt.MapFrom(src => src.RoomName)); // Giả sử OnlineRoom có Topic
 
 
+            // Mapping cho Exercise
+            CreateMap<CreateExerciseDto, Exercise>()
+                .ForMember(dest => dest.ExerciseQuestions, opt => opt.MapFrom(src => src.Questions));
+
+            CreateMap<CreateExerciseQuestionDto, ExerciseQuestion>()
+                 .ForMember(dest => dest.Explanation, opt => opt.MapFrom(src => src.Explanation ?? string.Empty))
+                .ForMember(dest => dest.ExerciseAnswers, opt => opt.MapFrom(src => src.Answers));
+
+            CreateMap<CreateExerciseAnswerDto, ExerciseAnswer>();
+
+            CreateMap<Exercise, ExerciseDto>()
+                .ForMember(dest => dest.Questions, opt => opt.MapFrom(src => src.ExerciseQuestions));
+
+            CreateMap<ExerciseQuestion, ExerciseQuestionDto>()
+                .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.ExerciseAnswers));
+
+            CreateMap<ExerciseAnswer, ExerciseAnswerDto>();
+
         }
     }
 }

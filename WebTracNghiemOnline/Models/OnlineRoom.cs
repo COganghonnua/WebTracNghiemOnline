@@ -13,6 +13,8 @@ namespace WebTracNghiemOnline.Models
         public ICollection<Exercise> ? Exercises { get; set; } // Danh sách bài tập
         [JsonIgnore]
         public ICollection<UserOnlineRoom> ? UserOnlineRooms { get; set; }
+        public ICollection<Post> Posts { get; set; }
+
     }
 
 

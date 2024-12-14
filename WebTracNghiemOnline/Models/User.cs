@@ -26,6 +26,9 @@ namespace WebTracNghiemOnline.Models
         public ICollection<UserOnlineRoom> UserOnlineRooms { get; set; }
         public ICollection<Transaction> transactions { get; set; }
         public ICollection<ExerciseHistory>? ExerciseHistories { get; set; }
+        public ICollection<Post> ? Posts { get; set; }
+        public ICollection<Comment> ? Comments { get; set; }
+
     }
 
 }

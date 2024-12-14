@@ -10,7 +10,12 @@ namespace WebTracNghiemOnline.Repository
         Task<OnlineRoom?> GetRoomByCodeAsync(string roomCode);
         Task<bool> IsUserInRoomAsync(string userId, int roomId);
         Task<UserOnlineRoom> AddUserToRoomAsync(UserOnlineRoom userOnlineRoom);
+
         Task<bool> LeaveRoomAsync(string userId, int roomId);
+        Task<Exercise> AddExerciseAsync(Exercise exercise);
+        Task<UserOnlineRoom?> GetUserInRoomAsync(string userId, int roomId);
+        Task<List<OnlineRoom>> GetUserRoomsAsync(string userId);
+
     }
 
     public class OnlineRoomRepository : IOnlineRoomRepository
@@ -61,6 +66,28 @@ namespace WebTracNghiemOnline.Repository
             return true;
         }
 
+
+        public async Task<Exercise> AddExerciseAsync(Exercise exercise)
+        {
+            _context.Exercises.Add(exercise);
+            await _context.SaveChangesAsync();
+            return exercise;
+        }
+        public async Task<UserOnlineRoom?> GetUserInRoomAsync(string userId, int roomId)
+        {
+            return await _context.UserOnlineRooms
+                .Include(ur => ur.OnlineRoom) // Nếu bạn cần thêm thông tin phòng học
+                .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.OnlineRoomId == roomId);
+        }
+
+        public async Task<List<OnlineRoom>> GetUserRoomsAsync(string userId)
+        {
+            return await _context.UserOnlineRooms
+                .Where(ur => ur.UserId == userId)
+                .Include(ur => ur.OnlineRoom) // Lấy thông tin phòng
+                .Select(ur => ur.OnlineRoom)
+                .ToListAsync();
+        }
 
     }
 }
