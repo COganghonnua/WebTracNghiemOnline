@@ -59,12 +59,14 @@ namespace WebTracNghiemOnline.Service
             // Tạo URL thanh toán
             var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
-
+            Console.WriteLine("---------------------------");
+            Console.WriteLine("Time now là gì : ", timeNow.ToString("yyyyMMddHHmmss"));
+            Console.WriteLine("---------------------------");
             var pay = new WebTracNghiemOnline.VnPayLibrary.VnPayLibrary();
             pay.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
             pay.AddRequestData("vnp_Command", _configuration["Vnpay:Command"]);
             pay.AddRequestData("vnp_TmnCode", _configuration["Vnpay:TmnCode"]);
-            pay.AddRequestData("vnp_Amount", ((int)(model.Amount * 100)).ToString());
+            pay.AddRequestData("vnp_Amount", ((int)(model.Amount * 100)).ToString()); // bắt buộc lấy * 100.
             pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
             pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
@@ -74,6 +76,7 @@ namespace WebTracNghiemOnline.Service
             pay.AddRequestData("vnp_ReturnUrl", _configuration["Vnpay:PaymentBackReturnUrl"]);
             pay.AddRequestData("vnp_TxnRef", transactionId); // Sử dụng TransactionId làm vnp_TxnRef
 
+            Console.WriteLine("Rawdata khi tra ve URL Thanh toán : ", pay.CreateRequestUrl(_configuration["Vnpay:BaseUrl"], _configuration["Vnpay:HashSecret"]));
             return pay.CreateRequestUrl(_configuration["Vnpay:BaseUrl"], _configuration["Vnpay:HashSecret"]);
         }
 
@@ -102,7 +105,7 @@ namespace WebTracNghiemOnline.Service
                 {
                     Success = false,
                     ErrorMessage = "Transaction not found."
-                };
+                }; 
             }
 
             // Cập nhật trạng thái giao dịch

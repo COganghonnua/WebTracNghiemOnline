@@ -15,6 +15,17 @@ namespace WebTracNghiemOnline.Repository
         Task<Exercise> AddExerciseAsync(Exercise exercise);
         Task<UserOnlineRoom?> GetUserInRoomAsync(string userId, int roomId);
         Task<List<OnlineRoom>> GetUserRoomsAsync(string userId);
+        Task<Exercise?> GetExerciseWithQuestionsAsync(int exerciseId);
+
+        // Lưu lịch sử bài tập
+        Task<ExerciseHistory> AddExerciseHistoryAsync(ExerciseHistory exerciseHistory);
+
+        // Lấy danh sách bài tập trong một phòng
+        Task<List<Exercise>> GetExercisesInRoomAsync(int roomId);
+
+        // Lấy lịch sử bài tập của một người dùng
+        Task<List<ExerciseHistory>> GetUserExerciseHistoriesAsync(string userId, int exerciseId);
+        Task<List<ExerciseQuestion>> GetQuestionsWithAnswersAsync(int exerciseId);
 
     }
 
@@ -88,6 +99,46 @@ namespace WebTracNghiemOnline.Repository
                 .Select(ur => ur.OnlineRoom)
                 .ToListAsync();
         }
+        public async Task<Exercise?> GetExerciseWithQuestionsAsync(int exerciseId)
+        {
+            return await _context.Exercises
+        .Include(e => e.ExerciseQuestions)
+            .ThenInclude(q => q.ExerciseAnswers)
+        .FirstOrDefaultAsync(e => e.ExerciseId == exerciseId);
+        }
+
+        public async Task<ExerciseHistory> AddExerciseHistoryAsync(ExerciseHistory exerciseHistory)
+        {
+            _context.ExerciseHistories.Add(exerciseHistory);
+            await _context.SaveChangesAsync();
+            return exerciseHistory;
+        }
+
+        public async Task<List<Exercise>> GetExercisesInRoomAsync(int roomId)
+        {
+            return await _context.Exercises
+        .Where(e => e.OnlineRoomId == roomId)
+        .Include(e => e.ExerciseQuestions)
+        .ToListAsync();
+        }
+
+        public async Task<List<ExerciseHistory>> GetUserExerciseHistoriesAsync(string userId, int exerciseId)
+        {
+            return await _context.ExerciseHistories
+                .Where(eh => eh.UserId == userId && eh.ExerciseId == exerciseId)
+                .Include(eh => eh.Exercise) // Fix chi tiết bài tập
+                .ToListAsync();
+        }
+        public async Task<List<ExerciseQuestion>> GetQuestionsWithAnswersAsync(int exerciseId)
+        {
+            return await _context.ExerciseQuestions
+                .Where(q => q.ExerciseId == exerciseId)
+                .Include(q => q.ExerciseAnswers)
+                .ToListAsync();
+        }
+
+    
+
 
     }
 }

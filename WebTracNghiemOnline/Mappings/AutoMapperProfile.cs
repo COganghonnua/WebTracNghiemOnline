@@ -59,7 +59,7 @@ namespace WebTracNghiemOnline.Mappings
             // Mapping cho Exercise
             CreateMap<CreateExerciseDto, Exercise>()
                 .ForMember(dest => dest.ExerciseQuestions, opt => opt.MapFrom(src => src.Questions));
-
+            CreateMap<Exercise, SimpleExerciseDto>();
             CreateMap<CreateExerciseQuestionDto, ExerciseQuestion>()
                  .ForMember(dest => dest.Explanation, opt => opt.MapFrom(src => src.Explanation ?? string.Empty))
                 .ForMember(dest => dest.ExerciseAnswers, opt => opt.MapFrom(src => src.Answers));
@@ -73,6 +73,7 @@ namespace WebTracNghiemOnline.Mappings
                 .ForMember(dest => dest.Answers, opt => opt.MapFrom(src => src.ExerciseAnswers));
 
             CreateMap<ExerciseAnswer, ExerciseAnswerDto>();
+            CreateMap<UserAnswerDto, ExerciseAnswer>();
 
         }
     }

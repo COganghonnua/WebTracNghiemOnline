@@ -15,6 +15,10 @@ namespace WebTracNghiemOnline.Service
         Task<OnlineRoom?> GetRoomByCodeAsync(string roomCode);
         Task<Exercise> CreateExerciseAsync(string userId, int roomId, CreateExerciseDto request);
         Task<List<OnlineRoom>> GetUserRoomsAsync(string userId);
+        Task<GradeResultDto> GradeExerciseAsync(string userId, int exerciseId, List<UserAnswerDto> userAnswers);
+        Task<List<Exercise>> GetExercisesInRoomAsync(int roomId);
+        Task<Exercise?> GetExerciseDetailsAsync(int exerciseId);
+
 
     }
 
@@ -132,6 +136,62 @@ namespace WebTracNghiemOnline.Service
 
             return await _repository.AddExerciseAsync(exercise);
         }
+        public async Task<GradeResultDto> GradeExerciseAsync(string userId, int exerciseId, List<UserAnswerDto> userAnswers)
+        {
+            var exerciseQuestions = await _repository.GetQuestionsWithAnswersAsync(exerciseId);
+            if (exerciseQuestions == null || !exerciseQuestions.Any())
+            {
+                throw new ArgumentException("Exercise does not exist or has no questions.");
+            }
+
+            int totalQuestions = exerciseQuestions.Count;
+            int correctAnswers = 0;
+
+            foreach (var question in exerciseQuestions)
+            {
+                var userAnswer = userAnswers.FirstOrDefault(ua => ua.QuestionId == question.ExerciseQuestionId);
+                if (userAnswer == null || userAnswer.AnswerIds == null || !userAnswer.AnswerIds.Any())
+                {
+                    continue; // Không trả lời câu hỏi hoặc câu trả lời không hợp lệ
+                }
+
+                var correctAnswerIds = question.ExerciseAnswers.Where(a => a.IsCorrect).Select(a => a.ExerciseAnswerId).ToList();
+                if (correctAnswerIds.SequenceEqual(userAnswer.AnswerIds.OrderBy(x => x)))
+                {
+                    correctAnswers++;
+                }
+            }
+
+            var score = (double)correctAnswers / totalQuestions * 100;
+
+            await _repository.AddExerciseHistoryAsync(new ExerciseHistory
+            {
+                UserId = userId,
+                ExerciseId = exerciseId,
+                Score = (int)score,
+                StartTime = DateTime.UtcNow,
+                EndTime = DateTime.UtcNow,
+                IsCompleted = true
+            });
+
+            return new GradeResultDto
+            {
+                TotalQuestions = totalQuestions,
+                CorrectAnswers = correctAnswers,
+                Score = score
+            };
+        }
+
+        public async Task<List<Exercise>> GetExercisesInRoomAsync(int roomId)
+        {
+            return await _repository.GetExercisesInRoomAsync(roomId);
+        }
+
+        public async Task<Exercise?> GetExerciseDetailsAsync(int exerciseId)
+        {
+            return await _repository.GetExerciseWithQuestionsAsync(exerciseId);
+        }
+
 
     }
 }

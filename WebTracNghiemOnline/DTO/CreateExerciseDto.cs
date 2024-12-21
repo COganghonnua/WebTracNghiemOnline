@@ -43,4 +43,12 @@
         public string AnswerText { get; set; }
         public bool IsCorrect { get; set; }
     }
+    public class SimpleExerciseDto
+    {
+        public int ExerciseId { get; set; }
+        public string ExerciseName { get; set; }
+        public DateTime StartTime { get; set; }
+        public DateTime EndTime { get; set; }
+    }
+
 }

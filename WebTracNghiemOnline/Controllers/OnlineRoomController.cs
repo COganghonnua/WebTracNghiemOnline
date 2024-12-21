@@ -154,6 +154,83 @@ namespace WebTracNghiemOnline.Controllers
             }
         }
 
+        [HttpPost("{exerciseId}/grade")]
+        public async Task<IActionResult> GradeExercise(int exerciseId, [FromBody] List<UserAnswerDto> userAnswers)
+        {
+            try
+            {
+                var token = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token not found. Please log in." });
+
+                var user = await _authService.ValidateTokenAsync(token);
+
+                // Gọi service để chấm điểm
+                var gradeResult = await _onlineRoomService.GradeExerciseAsync(user.Id, exerciseId, userAnswers);
+
+                return Ok(new
+                {
+                    message = "Grading successful",
+                    totalQuestions = gradeResult.TotalQuestions,
+                    correctAnswers = gradeResult.CorrectAnswers,
+                    score = gradeResult.Score
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("{roomId}/exercises")]
+        public async Task<IActionResult> GetExercisesInRoom(int roomId)
+        {
+            try
+            {
+                var token = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token not found. Please log in." });
+
+                var user = await _authService.ValidateTokenAsync(token);
+
+                var exercises = await _onlineRoomService.GetExercisesInRoomAsync(roomId);
+                var exerciseDtos = _mapper.Map<List<SimpleExerciseDto>>(exercises);
+
+                return Ok(exerciseDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("exercises/{exerciseId}")]
+        public async Task<IActionResult> GetExerciseDetails(int exerciseId)
+        {
+            try
+            {
+                var token = Request.Cookies["jwt"];
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Token not found. Please log in." });
+
+                var user = await _authService.ValidateTokenAsync(token);
+
+                var exercise = await _onlineRoomService.GetExerciseDetailsAsync(exerciseId);
+                if (exercise == null)
+                    return NotFound(new { message = "Exercise not found." });
+
+                var exerciseDto = _mapper.Map<ExerciseDto>(exercise);
+                return Ok(exerciseDto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
 
     }
 
@@ -161,6 +238,7 @@ namespace WebTracNghiemOnline.Controllers
     {
         public string RoomCode { get; set; }
     }
+
 
 
 }

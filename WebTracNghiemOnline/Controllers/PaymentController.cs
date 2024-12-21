@@ -113,8 +113,8 @@ namespace WebTracNghiemOnline.Controllers
                 {
                     return Unauthorized(new { error = "Token is missing or invalid." });
                 }
-
-                // Gọi service để tạo giao dịch
+                //Đoạn này có thể lấy user để xử lý ở đây
+                // Gọi service để tạo giao dịch vấn đề ở đây là chỉ nhận token
                 var paymentUrl = await _paymentService.CreateDepositAsync(token, request.Amount);
 
                 return Ok(new { paymentUrl });
