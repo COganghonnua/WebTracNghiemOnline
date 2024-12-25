@@ -75,6 +75,22 @@ namespace WebTracNghiemOnline.Mappings
             CreateMap<ExerciseAnswer, ExerciseAnswerDto>();
             CreateMap<UserAnswerDto, ExerciseAnswer>();
 
+            //notifi
+            CreateMap<NotificationRequestDto, Notification>()
+            .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
+
+            CreateMap<Post, PostResponseDto>()
+                .ForMember(dest => dest.Attachments, opt => opt.MapFrom(src => src.FileAttachments))
+                .ForMember(dest => dest.CreatedBy, opt => opt.MapFrom(src => src.User.FullName)) // Thông tin người tạo bài viết
+                .ForMember(dest => dest.Comments, opt => opt.MapFrom(src => src.Comments)); // Danh sách bình luận
+
+            CreateMap<Comment, CommentResponseDto>()
+                .ForMember(dest => dest.UserFullName, opt => opt.MapFrom(src => src.User.FullName)); // Người bình luận
+
+
+            CreateMap<FileAttachment, FileAttachmentDto>();
+
         }
     }
 }

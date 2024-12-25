@@ -96,13 +96,18 @@ namespace WebTracNghiemOnline.Services
         }
         private string GenerateJwtToken(User user)
         {
+            var roles = _userRepository.GetRolesAsync(user).Result; // Lấy danh sách vai trò
             var claims = new List<Claim>
     {
-        new Claim(ClaimTypes.NameIdentifier, user.Id), // Đồng bộ với ValidateTokenAsync
+        new Claim(ClaimTypes.NameIdentifier, user.Id),
         new Claim(ClaimTypes.Name, user.UserName),
-        new Claim(ClaimTypes.Email, user.Email),
-        new Claim(ClaimTypes.Role,"User")
+        new Claim(ClaimTypes.Email, user.Email)
     };
+
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role)); // Thêm từng vai trò
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.SecretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -119,6 +124,7 @@ namespace WebTracNghiemOnline.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
         }
-    }
 
     }
+
+}

@@ -7,6 +7,7 @@ using WebTracNghiemOnline.Models;
 
 namespace WebTracNghiemOnline.Access
 {
+
     public class ApplicationDbContext : IdentityDbContext<User>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -28,6 +29,9 @@ namespace WebTracNghiemOnline.Access
         public DbSet<ExerciseHistory> ExerciseHistories { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<FileAttachment> FileAttachments { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -87,6 +91,22 @@ namespace WebTracNghiemOnline.Access
                 .WithMany(p => p.Comments)
                 .HasForeignKey(c => c.PostId)
                 .OnDelete(DeleteBehavior.Cascade); // Cascade chỉ với Post
+
+
+            modelBuilder.Entity<UserOnlineRoom>()
+            .HasIndex(uor => new { uor.UserId, uor.OnlineRoomId })
+            .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.UserOnlineRooms)
+                .WithOne(uor => uor.User)
+                .HasForeignKey(uor => uor.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<OnlineRoom>()
+                .HasIndex(or => or.RoomCode)
+                .IsUnique();
+
 
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<IdentityRole>().ToTable("Roles");

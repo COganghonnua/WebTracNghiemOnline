@@ -14,6 +14,8 @@ namespace WebTracNghiemOnline.Repository
         Task<bool> LeaveRoomAsync(string userId, int roomId);
         Task<Exercise> AddExerciseAsync(Exercise exercise);
         Task<UserOnlineRoom?> GetUserInRoomAsync(string userId, int roomId);
+        Task<List<UserOnlineRoom>> GetUsersInRoomAsync(int roomId);
+
         Task<List<OnlineRoom>> GetUserRoomsAsync(string userId);
         Task<Exercise?> GetExerciseWithQuestionsAsync(int exerciseId);
 
@@ -89,6 +91,13 @@ namespace WebTracNghiemOnline.Repository
             return await _context.UserOnlineRooms
                 .Include(ur => ur.OnlineRoom) // Nếu bạn cần thêm thông tin phòng học
                 .FirstOrDefaultAsync(ur => ur.UserId == userId && ur.OnlineRoomId == roomId);
+        }
+        public async Task<List<UserOnlineRoom>> GetUsersInRoomAsync(int roomId)
+        {
+            return await _context.UserOnlineRooms
+                .Where(ur => ur.OnlineRoomId == roomId)
+                .Include(ur => ur.User) // Bao gồm thông tin người dùng
+                .ToListAsync();
         }
 
         public async Task<List<OnlineRoom>> GetUserRoomsAsync(string userId)

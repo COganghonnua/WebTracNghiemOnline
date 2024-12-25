@@ -2,6 +2,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using WebTracNghiemOnline.DTO;
+using WebTracNghiemOnline.Repository;
 using WebTracNghiemOnline.Services;
 
 namespace WebTracNghiemOnline.Controllers
@@ -11,10 +12,11 @@ namespace WebTracNghiemOnline.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-
-        public AuthController(IAuthService authService)
+        private readonly IUserRepository _userRepository;
+        public AuthController(IAuthService authService, IUserRepository userRepository)
         {
             _authService = authService;
+            _userRepository = userRepository;
         }
         
 
@@ -106,11 +108,14 @@ namespace WebTracNghiemOnline.Controllers
                     return Unauthorized(new { message = "Không tìm thấy token. Vui lòng đăng nhập lại." });
 
                 var user = await _authService.ValidateTokenAsync(token);
+                var roles = await _userRepository.GetRolesAsync(user);
+
                 return Ok(new
                 {
                     email = user.Email,
                     fullName = user.FullName,
-                    balance = user.Balance
+                    balance = user.Balance,
+                    roles // Trả về vai trò
                 });
             }
             catch (UnauthorizedAccessException ex)

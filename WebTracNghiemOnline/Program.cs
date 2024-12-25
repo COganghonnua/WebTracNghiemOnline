@@ -18,6 +18,7 @@ using OfficeOpenXml;
 using WebTracNghiemOnline.MoMo.Config;
 using WebTracNghiemOnline.DTO;
 using System.Text.Json;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -44,6 +45,8 @@ var jwtConfig = builder.Configuration.GetSection("JwtConfig").Get<JwtConfig>();
 var key = Encoding.UTF8.GetBytes(jwtConfig.SecretKey);
 
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("Momo"));
+//để lây được đường dẫn truy cập tới server trực tiếp thì phải. -> đọc kĩ sau
+builder.Services.AddHttpContextAccessor();
 
 
 // Cấu hình Authentication
@@ -170,6 +173,12 @@ builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IVNPAYService, VNPAYService>();
 builder.Services.AddScoped<IOnlineRoomRepository, OnlineRoomRepository>();
 builder.Services.AddScoped<IOnlineRoomService, OnlineRoomService>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IPostService, PostService>();
+
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -189,7 +198,12 @@ app.UseRouting();
 
 app.UseAuthentication(); // Thêm dòng này
 app.UseAuthorization();
-
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "uploads")),
+    RequestPath = "/uploads"
+});
 app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {

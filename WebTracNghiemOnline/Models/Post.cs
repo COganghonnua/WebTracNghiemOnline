@@ -23,5 +23,6 @@ namespace WebTracNghiemOnline.Models
         public OnlineRoom OnlineRoom { get; set; }
 
         public ICollection<Comment> Comments { get; set; }
+        public ICollection<FileAttachment> FileAttachments { get; set; }
     }
 }
