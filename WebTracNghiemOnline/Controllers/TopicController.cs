@@ -20,7 +20,7 @@ namespace WebTracNghiemOnline.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles ="User")]
+        [Authorize(Roles ="Admin")]
         public async Task<ActionResult<IEnumerable<TopicDTO>>> GetTopics()
         {
             Console.WriteLine("Da vao day roi");

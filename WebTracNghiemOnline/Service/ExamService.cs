@@ -13,9 +13,8 @@ namespace WebTracNghiemOnline.Service
         Task<(bool Success, string Message, object Data)> CreateRandomExamAsync(CreateExamDto dto, NumberOfQuestionsDto numberOfQuestions);
         Task<ExamWithQuestionsDto?> GetExamWithQuestionsAsync(int examId);
         Task<(bool Success, string Message, dynamic Data)> SubmitExamAsync(int examId, string userId, SubmitExamDto submitExamDto);
-        Task<(bool Success, string Message, int Score)>
-CheckExamAnswersAsync(ExamSubmissionDto examSubmission);
-
+        Task<(bool Success, string Message, int Score)>CheckExamAnswersAsync(ExamSubmissionDto examSubmission);
+        Task<(bool Success, string Message, object? Data)> GetExamHistoryDetailsAsync(int examHistoryId, string userId);
     }
 
     public class ExamService : IExamService
@@ -123,45 +122,53 @@ CheckExamAnswersAsync(ExamSubmissionDto examSubmission);
         }
         public async Task<(bool Success, string Message, dynamic Data)> SubmitExamAsync(int examId, string userId, SubmitExamDto submitExamDto)
         {
-            // Kiểm tra bài thi
+            // Lấy thông tin bài thi từ cơ sở dữ liệu
             var exam = await _examRepository.GetExamWithQuestionsAsync(examId);
             if (exam == null)
-            {
                 return (false, "Exam not found.", null);
-            }
 
-            // Lấy danh sách các đáp án đúng
+            // Lấy danh sách đáp án đúng cho các câu hỏi
             var correctAnswers = exam.ExamQuestions
                 .SelectMany(eq => eq.Question.Answers)
                 .Where(a => a.IsCorrect)
                 .ToDictionary(a => a.QuestionId, a => a);
 
-            // Tính điểm
             int totalQuestions = exam.ExamQuestions.Count;
             int correctCount = 0;
+
+            // Danh sách lưu lịch sử câu trả lời
+            var historyAnswers = new List<ExamHistoryAnswer>();
 
             foreach (var userAnswer in submitExamDto.UserAnswers)
             {
                 var questionId = userAnswer.Key;
                 var selectedAnswers = userAnswer.Value;
 
-                // Kiểm tra đáp án đúng
+                // Lấy đáp án đúng của câu hỏi hiện tại
                 var correctAnswerIds = correctAnswers
                     .Where(c => c.Key == questionId)
                     .Select(c => c.Value.AnswerId)
                     .ToList();
 
-                // So sánh danh sách đáp án
-                if (correctAnswerIds.OrderBy(a => a).SequenceEqual(selectedAnswers.OrderBy(a => a)))
-                {
+                // Kiểm tra đúng/sai
+                bool isCorrect = !correctAnswerIds.Except(selectedAnswers).Any() &&
+                                 !selectedAnswers.Except(correctAnswerIds).Any();
+                if (isCorrect)
                     correctCount++;
-                }
+
+                // Thêm vào danh sách lịch sử câu trả lời
+                historyAnswers.Add(new ExamHistoryAnswer
+                {
+                    QuestionId = questionId,
+                    SelectedAnswerIds = string.Join(",", selectedAnswers),
+                    IsCorrect = isCorrect
+                });
             }
 
-            // Quy đổi điểm
+            // Tính điểm
             int score = (int)Math.Round((double)correctCount / totalQuestions * 10, 2);
 
-            // Lưu lịch sử bài thi
+            // Tạo lịch sử bài thi
             var examHistory = new ExamHistory
             {
                 ExamId = examId,
@@ -171,8 +178,19 @@ CheckExamAnswersAsync(ExamSubmissionDto examSubmission);
                 Duration = submitExamDto.TimeTaken
             };
 
+            // Lưu ExamHistory trước để lấy ID
             await _examRepository.SaveExamHistoryAsync(examHistory);
 
+            // Cập nhật ExamHistoryId vào danh sách câu trả lời
+            foreach (var answer in historyAnswers)
+            {
+                answer.ExamHistoryId = examHistory.ExamHistoryId;
+            }
+
+            // Lưu danh sách lịch sử câu trả lời
+            await _examRepository.SaveExamHistoryAnswersAsync(historyAnswers);
+
+            // Trả về kết quả
             return (true, "Exam submitted successfully.", new
             {
                 Score = score,
@@ -180,6 +198,8 @@ CheckExamAnswersAsync(ExamSubmissionDto examSubmission);
                 CorrectAnswers = correctCount
             });
         }
+
+
 
         public async Task<(bool Success, string Message, int Score)>CheckExamAnswersAsync(ExamSubmissionDto examSubmission)
         {
@@ -215,6 +235,41 @@ CheckExamAnswersAsync(ExamSubmissionDto examSubmission);
             }
             return (true, "Answers checked successfully.", score);
         }
+        public async Task<(bool Success, string Message, object? Data)> GetExamHistoryDetailsAsync(int examHistoryId, string userId)
+        {
+            var history = await _examRepository.GetExamHistoryDetailsAsync(examHistoryId, userId);
+            if (history == null) return (false, "Exam history not found.", null);
+
+            // Xử lý câu hỏi và đáp án trong bài thi
+            var questions = history.Exam.ExamQuestions.Select(eq => new
+            {
+                eq.QuestionId,
+                QuestionText = eq.Question.QuestionText,
+                SelectedAnswers = history.ExamHistoryAnswers
+                    .Where(a => a.QuestionId == eq.QuestionId)
+                    .SelectMany(a => a.SelectedAnswerIds.Split(",").Select(int.Parse)).ToList(),
+                IsCorrect = history.ExamHistoryAnswers
+                    .Where(a => a.QuestionId == eq.QuestionId)
+                    .Select(a => a.IsCorrect).FirstOrDefault(),
+                CorrectAnswers = eq.Question.Answers
+                    .Where(ans => ans.IsCorrect)
+                    .Select(ans => ans.AnswerId).ToList()
+            }).ToList();
+
+            var result = new
+            {
+                ExamName = history.Exam.ExamName,
+                Score = history.Score,
+                ExamDate = history.ExamDate,
+                Questions = questions
+            };
+
+            return (true, "History retrieved successfully.", result);
+        }
+
+
+
+
 
 
     }

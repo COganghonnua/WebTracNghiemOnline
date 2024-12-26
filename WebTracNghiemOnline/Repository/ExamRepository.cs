@@ -13,7 +13,9 @@ namespace WebTracNghiemOnline.Repository
         Task UpdateExamAsync(Exam exam);
         Task<Exam?> GetExamWithQuestionsAsync(int id);
         Task SaveExamHistoryAsync(ExamHistory examHistory);
-
+        Task SaveExamHistoryAsync(ExamHistory examHistory, List<ExamHistoryAnswer> historyAnswers);
+        Task<ExamHistory?> GetExamHistoryDetailsAsync(int examHistoryId, string userId);
+        Task SaveExamHistoryAnswersAsync(List<ExamHistoryAnswer> historyAnswers);
     }
 
     public class ExamRepository : IExamRepository
@@ -62,6 +64,31 @@ namespace WebTracNghiemOnline.Repository
         public async Task SaveExamHistoryAsync(ExamHistory examHistory)
         {
             _context.ExamHistories.Add(examHistory);
+            await _context.SaveChangesAsync();
+        }
+        public async Task SaveExamHistoryAsync(ExamHistory examHistory, List<ExamHistoryAnswer> historyAnswers)
+        {
+            _context.ExamHistories.Add(examHistory);
+            _context.ExamHistoryAnswers.AddRange(historyAnswers);
+            await _context.SaveChangesAsync();
+        }
+        public async Task<ExamHistory?> GetExamHistoryDetailsAsync(int examHistoryId, string userId)
+        {
+            return await _context.ExamHistories
+                .Include(eh => eh.Exam) // Bao gồm bài thi
+                    .ThenInclude(ex => ex.ExamQuestions) // Bao gồm câu hỏi trong bài thi
+                        .ThenInclude(eq => eq.Question) // Bao gồm câu hỏi
+                            .ThenInclude(q => q.Answers) // Bao gồm đáp án của câu hỏi
+                .Include(eh => eh.ExamHistoryAnswers) // Bao gồm lịch sử câu trả lời
+                .FirstOrDefaultAsync(eh => eh.ExamHistoryId == examHistoryId && eh.UserId == userId);
+        }
+
+
+
+
+        public async Task SaveExamHistoryAnswersAsync(List<ExamHistoryAnswer> historyAnswers)
+        {
+            _context.ExamHistoryAnswers.AddRange(historyAnswers);
             await _context.SaveChangesAsync();
         }
 

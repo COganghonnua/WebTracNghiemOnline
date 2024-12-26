@@ -31,7 +31,7 @@ namespace WebTracNghiemOnline.Access
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<FileAttachment> FileAttachments { get; set; }
-
+        public DbSet<ExamHistoryAnswer> ExamHistoryAnswers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

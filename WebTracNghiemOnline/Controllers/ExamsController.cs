@@ -124,6 +124,19 @@ namespace WebTracNghiemOnline.Controllers
             return Ok(new { score = result.Score });
         }
 
+        [HttpGet("{examHistoryId}/details")]
+        [Authorize]
+        public async Task<IActionResult> GetExamHistoryDetails(int examHistoryId)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var result = await _examService.GetExamHistoryDetailsAsync(examHistoryId, userId);
+            if (!result.Success) return NotFound(result.Message);
+
+            return Ok(result.Data);
+        }
+
 
     }
 

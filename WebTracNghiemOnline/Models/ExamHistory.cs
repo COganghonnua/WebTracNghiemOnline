@@ -10,6 +10,8 @@
         public DateTime ExamDate { get; set; } // Ngày thi
         public int Score { get; set; } // Điểm số người dùng đạt được
         public TimeSpan Duration { get; set; } // Thời gian hoàn thành bài thi
+
+        public ICollection<ExamHistoryAnswer> ExamHistoryAnswers { get; set; } = new List<ExamHistoryAnswer>();
     }
 
 }
